@@ -20,38 +20,43 @@ local function select_task(opts, scope)
     return not task.disabled
   end, tasks)
 
-  pickers.new(opts, {
-    prompt_title = 'Select a task',
-    finder = finders.new_table({
-      results = tasks,
-      entry_maker = function(entry)
-        local display = entry.name
-        local ordinal = entry.name
-        if type(entry.command) == 'string' then
-          display = string.format('%s: %s', entry.name, entry.command)
-          ordinal = display .. entry.command
+  pickers
+    .new(opts, {
+      prompt_title = 'Select a task',
+      finder = finders.new_table({
+        results = tasks,
+        entry_maker = function(entry)
+          local display = entry.name
+          local ordinal = entry.name
+          if type(entry.command) == 'string' then
+            display = string.format('%s: %s', entry.name, entry.command)
+            ordinal = display .. entry.command
+          end
+          if type(entry.desc) == 'string' then
+            display = string.format('%s: %s', entry.name, entry.desc)
+          end
+          return {
+            value = entry.name,
+            display = display,
+            ordinal = ordinal,
+          }
+        end,
+      }),
+      sorter = sorters.get_fzy_sorter(),
+      attach_mappings = function(prompt_bufnr)
+        local source_session = function()
+          actions.close(prompt_bufnr)
+          local entry = actionstate.get_selected_entry(prompt_bufnr)
+          if entry then
+            Yabs:run_task(entry.value, { scope = scope })
+          end
         end
-        return {
-          value = entry.name,
-          display = display,
-          ordinal = ordinal,
-        }
-      end,
-    }),
-    sorter = sorters.get_fzy_sorter(),
-    attach_mappings = function(prompt_bufnr)
-      local source_session = function()
-        actions.close(prompt_bufnr)
-        local entry = actionstate.get_selected_entry(prompt_bufnr)
-        if entry then
-          Yabs:run_task(entry.value, { scope = scope })
-        end
-      end
 
-      actions.select_default:replace(source_session)
-      return true
-    end,
-  }):find()
+        actions.select_default:replace(source_session)
+        return true
+      end,
+    })
+    :find()
 end
 
 return telescope.register_extension({

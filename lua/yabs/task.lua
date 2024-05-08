@@ -17,6 +17,7 @@ function Task:new(args)
     condition = args.condition,
     disabled = false,
     opts = args.opts or {},
+    desc = args.desc or {},
   }
 
   self.__index = self
