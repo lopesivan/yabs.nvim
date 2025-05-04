@@ -28,13 +28,21 @@ local function select_task(opts, scope)
                 local display = entry.name
                 local ordinal = entry.name
                 local d = string.format('%s', entry.name)
+                local entry_desc = nil
+                local total_length = 72
+                local padding = 20
                 if entry.desc then
-                    d = string.format('%s: %24s', entry.name, entry.desc)
+                    entry_desc = entry.desc
+                    -- calcula quantos espaços precisa
+                    padding = total_length - #entry_desc - #entry.name
+                    -- Repete o espaço padding vezes
+                    entry_desc = string.rep(" ", padding) .. entry_desc
+                    d = string.format('%s: %s', entry.name, entry_desc)
                 end
                 if type(entry.command) == 'string' then
-                    display = string.format('%: %s', entry.name, entry.command)
+                    display = string.format('%s: %s', entry.name, entry.command)
                     if entry.desc then
-                        display = string.format('%: %s %s', entry.name, entry.command, entry.desc)
+                        display = string.format('%s: %s %s', entry.name, entry.command, entry.desc)
                     end
                     ordinal = display .. entry.command
                 end
