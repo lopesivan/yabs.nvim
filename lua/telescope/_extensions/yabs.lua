@@ -3,7 +3,7 @@ local actions = require('telescope.actions')
 local actionstate = require('telescope.actions.state')
 local pickers = require('telescope.pickers')
 local finders = require('telescope.finders')
--- local sorters = require('telescope.sorters')
+local sorters = require('telescope.sorters')
 local themes = require('telescope.themes')
 local Yabs = require('yabs')
 local scopes = require('yabs.task').scopes
@@ -27,42 +27,42 @@ local function select_task(opts, scope)
             entry_maker = function(entry)
                 local display = entry.name
                 local ordinal = entry.name
-                local d = string.format('%s', entry.name)
-                local entry_desc = nil
+
                 local total_length = 72
                 local padding = 20
 
                 if entry.desc then
-                    entry_desc = entry.desc
-
+                    local entry_desc = entry.desc
                     padding = total_length - #entry_desc - #entry.name
+
                     if type(entry.command) == 'string' then
-                        padding = total_length - #entry_desc - #entry.name - #entry.command
+                        padding = padding - #entry.command
                     end
 
                     entry_desc = string.rep(" ", padding) .. entry_desc
 
-                    d = string.format('%s: %s', entry.name, entry_desc)
                     if type(entry.command) == 'string' then
-                        d = string.format('%s: %s %s', entry.name, entry.command, entry_desc)
+                        display = string.format('%s: %s %s', entry.name, entry.command, entry_desc)
+                    else
+                        display = string.format('%s: %s', entry.name, entry_desc)
+                    end
+                else
+                    if type(entry.command) == 'string' then
+                        -- display = string.format('%s: %s', entry.name, entry.command)
+                        display = string.format('%s', entry.command)
+                    else
+                        display = string.format('%s', entry.name)
                     end
                 end
 
-                if type(entry.command) == 'string' then
-                    display = string.format('%s: %s', entry.name, entry.command)
-                    if entry.desc then
-                        display = string.format('%s: %s %s', entry.name, entry.command, entry.desc)
-                    end
-                    ordinal = display .. entry.command
-                end
                 return {
                     value = entry.name,
-                    display = d,
+                    display = display,
                     ordinal = ordinal,
                 }
             end,
         }),
-        -- sorter = sorters.get_fzy_sorter(),
+        sorter = sorters.get_fzy_sorter(),
         attach_mappings = function(prompt_bufnr)
             local source_session = function()
                 actions.close(prompt_bufnr)
