@@ -20,6 +20,11 @@ local function select_task(opts, scope)
         return not task.disabled
     end, tasks)
 
+    -- 🔑 Ordena alfabeticamente pelo nome da task
+    table.sort(tasks, function(a, b)
+        return a.name:lower() < b.name:lower()
+    end)
+
     pickers.new(opts, {
         prompt_title = 'Select a task',
         finder = finders.new_table({
